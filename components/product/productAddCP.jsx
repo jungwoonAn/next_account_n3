@@ -1,13 +1,26 @@
 'use client'
 
 import { postProduct } from "@/actions/productActions"
-import { useRouter } from "next/navigation"
+import { useAuthCheck } from "@/hooks/useAuthCheck"
 import { useActionState, useEffect } from "react"
 
 export default function ProductAddCP() {
     const [state, action, isPending] = useActionState(postProduct, { message: '', result: '' })
 
-    const router = useRouter()
+    const {session, router} = useAuthCheck()
+    console.log(session)
+
+    // useAuthCheck에 들어있는 내용이므로 삭제!!
+    // const router = useRouter()
+
+    // const { data:session, status:sessionStatus } = useSession()
+    // console.log(session, sessionStatus)
+
+    // useEffect(()=>{
+    //     if(sessionStatus === 'unauthenticated') {
+    //         alert('로그인 하세요')
+    //     }
+    // }, [sessionStatus])
 
     // 성공 메시지가 있을 경우 페이지 이동
     // useEffect 훅을 사용하여 상태 변경 후 페이지 이동
@@ -69,7 +82,7 @@ export default function ProductAddCP() {
                             id="writer"
                             name='writer'
                             className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
-                            placeholder="작성자를 입력하세요"
+                            defaultValue={session?.user?.email}
                         />
                     </div>
 

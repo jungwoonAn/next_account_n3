@@ -1,8 +1,8 @@
 'use client'
 
 import { deleteProduct, putProduct } from "@/actions/productActions"
+import { useAuthCheck } from "@/hooks/useAuthCheck"
 import Image from "next/image"
-import { useRouter } from "next/navigation"
 import { useActionState, useEffect, useState } from "react"
 
 export default function ProductEditCP({ product, from }) {
@@ -10,6 +10,8 @@ export default function ProductEditCP({ product, from }) {
     const [deleteState, deleteAction, deletePending] = useActionState(deleteProduct, { message: '', result: '' })
 
     const { pno, pname, price, fileNames, writer, sale } = product
+
+    const {session, router} = useAuthCheck()
 
     // 수정 처리를 위한 기존 파일 처리
     const [oldFiles, setOldFiles] = useState(fileNames)
@@ -23,7 +25,7 @@ export default function ProductEditCP({ product, from }) {
         setOldFiles(() => result)
     }
 
-    const router = useRouter()
+    // const router = useRouter()  // useAuthCheck에서 받아와서 삭제!!
 
     useEffect(() => {
         if (putState.result === 'success') {
@@ -153,13 +155,15 @@ export default function ProductEditCP({ product, from }) {
                     </div>
                 </form>
 
-                <form action={deleteAction} className="mt-4">
-                    <input type='hidden' name="pno" value={pno}></input>
-                    <button
-                        type="submit"
-                        className="w-full px-4 py-2 bg-red-600 text-white font-semibold rounded-md shadow-md hover:bg-red-700 transition-colors duration-200"
-                    >삭제</button>
-                </form>
+                {(product.writer === session?.user?.email || session?.user?.role === 'ADMIN') &&
+                    <form action={deleteAction} className="mt-4">
+                        <input type='hidden' name="pno" value={pno}></input>
+                        <button
+                            type="submit"
+                            className="w-full px-4 py-2 bg-red-600 text-white font-semibold rounded-md shadow-md hover:bg-red-700 transition-colors duration-200"
+                        >삭제</button>
+                    </form>
+                }
             </div>
         </div>
     )
